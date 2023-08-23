@@ -1,45 +1,33 @@
-	@DataProvider(name = "OdemePoliceData", parallel = false)
-	public Iterator<Object[]> OdemeDegisiklikSelectPolice() throws RemoteException {
-
-		log.info("Total Odeme Police Data Provider: " + odemePoliceList.size());
-
-		Collection<Object[]> data = new ArrayList<Object[]>();
-		odemePoliceList.forEach(item -> data.add(new Object[] { item }));
-		return data.iterator();
-	}
-
-	@Test(dataProvider = "OdemePoliceData")
-	public void OdemeDegisikligiTest(String[] dataFromList, Integer i)
-			throws InterruptedException, SQLException, As400Exceptions, IOException {
-
-		
-		
-		String PolicePrefix = dataFromList[0].trim();
-		String policeNo = dataFromList[1].trim();
-		log.info("Police No: " +PolicePrefix+" "+ policeNo);
-
-		if(!(dataFromList[0].trim().equals("E")|| dataFromList[0].trim().equals("D")))
-			throw new As400Exceptions(dataFromList[0], policeNo, "", "Başarısız", "Hata!! Poliçe paket kodu hatalıdır.",
-					odemeDegisikligiList);
-		if(i==0 || i==1 || i==2 || i==3 || i==4 || i==5) {
-			Thread.sleep(i*1000);
-		}
-			
+	private  void kontrolEndeks(List<String[]> tarihBilgisi) {
 		try {
-
-			as400Actions.openUrl(GetOdemeDegisikligiData.as400URL, policeNo, odemeDegisikligiList,PolicePrefix)
-					.login(GetOdemeDegisikligiData.as400Username, GetOdemeDegisikligiData.as400Password, policeNo, odemeDegisikligiList,PolicePrefix)
-					.odemeSekliDegisikligi(policeNo, odemeDegisikligiList,PolicePrefix);
-
-		} catch (Exception e) {
-
-			as400Actions.sessionClose();
+		//	if(isElementExist(By.id("inpR6C3L1.id"), 2));
+			as400SendKeysEnter(By.id("inpR7C2L1.id"), "X");
+			sendKeysWithLabel("Pol/Söz.Bilgilerini Görüntüleme ..:", "X");
+			as400PressEnter();
+			as400PressEnter();
+			as400PressEnter();
+			as400PressEnter();
 			
-//			if (e.getMessage().contains("WebDriverException") || e.getMessage().contains("TimeoutException")) {
-			if(!e.toString().contains("As400Exceptions")) {
-				log.info("exception identification:" + e.getMessage());
-				throw new As400Exceptions(PolicePrefix, policeNo, "", "Başarısız", "Odeme Degisikligi Hata: Sistem Exception",
-						odemeDegisikligiList);
-			}
+			String Gun = getTextOfElement(By.xpath("//*[@id=\"screenarea\"]/tbody/tr[5]/td[10]/a"), 0);
+			String Ay = getTextOfElement(By.xpath("//*[@id=\"screenarea\"]/tbody/tr[5]/td[12]/a"), 0);
+			String Yıl = getTextOfElement(By.xpath("//*[@id=\"screenarea\"]/tbody/tr[5]/td[14]/a"), 0);
+			log.info(Gun + " " + Ay + " " + Yıl);
+			String[] temp = new String[1];
+			String[] temp1 = new String[1];
+			String[] temp2 = new String[1];
+			temp[0] = Gun;
+			temp1[0] = Ay;
+			temp2[0] = Yıl;
+			tarihBilgisi.add(temp);
+			tarihBilgisi.add(temp1);
+			tarihBilgisi.add(temp2);
+
+			System.out.println(temp + " " + temp1 +" "+ temp2);
+			
+				
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		
 	}
